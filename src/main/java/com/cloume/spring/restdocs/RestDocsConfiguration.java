@@ -22,7 +22,9 @@ public class RestDocsConfiguration {
     }
 
     @Bean
-    public RestDocBuilder restDocBuilder() { return new RestDocBuilder(); }
+    public RestDocBuilder restDocBuilder() { 
+    	return new RestDocBuilder();
+    }
 
     @Controller
     @RequestMapping(value = "${restdocs.base:/docs.md}", produces = {MediaType.TEXT_MARKDOWN_VALUE})
