@@ -1,16 +1,15 @@
 package com.cloume.spring.restdocs;
 
-import com.cloume.spring.restdocs.annotation.RestDoc;
-import com.cloume.spring.restdocs.processor.RestControllerProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cloume.spring.restdocs.processor.RestControllerProcessor;
 
 /**
  * Created by Gang on 2017/08/03.
