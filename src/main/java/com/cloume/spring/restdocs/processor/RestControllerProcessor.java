@@ -22,11 +22,17 @@ public class RestControllerProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if (bean.getClass().isAnnotationPresent(RestController.class)) {
+        	RequestMapping prm = bean.getClass().getAnnotation(RequestMapping.class);
+        	String[] basePaths = new String[] {};
+        	if(prm != null) {
+        		basePaths = (prm.value() == null ? prm.path() : prm.value());
+        	}
                 List<Method> methods = org.apache.commons.lang3.reflect.MethodUtils.getMethodsListWithAnnotation(bean.getClass(), RequestMapping.class);
                 for (Method m : methods) {
                     RequestMapping rm = m.getAnnotation(RequestMapping.class);
-                    RestDocBuilder.RestDocMethodBuilder mb = builder.method(Arrays.stream(rm.value() == null ? rm.path() : rm.value())
-                            .reduce((a, b) -> a + "," + b).get())
+                    String[] paths = (rm.value() == null ? rm.path() : rm.value());
+                    RestDocBuilder.RestDocMethodBuilder mb = builder.method(Arrays.stream(paths)
+                            .reduce((a, b) -> a + "," + b).orElse(""))
                             .methods(Arrays.stream(rm.method()).map(i -> i.name()).toArray(String[]::new));
                     Arrays.stream(m.getParameters()).forEach(p -> {
                         String name = p.getName();
