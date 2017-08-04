@@ -4,17 +4,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.method.annotation.ExpressionValueMethodArgumentResolver;
+
 /**
  * Created by Gang on 2017/08/04.
  */
 public class DocMethod {
-    DocResponse response;
     String name;
-    String[] methods = new String[]{};
-    String description;
+    String[] methods = new String[] {};
+    String[] uris = new String[] {};
+    String[] scopes = new String[] {};
+    String usage;
+    String response;
+    
     Collection<DocParam<?>> params;
-
-
+	
     Collection<DocParam<?>> getParams() {
         return params == null ? params = new ArrayList<>() : params;
     }
@@ -22,9 +27,25 @@ public class DocMethod {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public void setUsage(String usage) {
+		this.usage = usage;
+	}
 
     public void setMethods(String[] methods) {
         this.methods = methods;
+    }
+    
+    public void setUris(String[] uris) {
+    	this.uris = uris;
+    }
+    
+    public void setScopes(String[] scopes) {
+    	this.scopes = scopes;
+    }
+    
+    public void setResponse(String response) {
+    	this.response = response;
     }
 
     public void addParam(DocParam<?> newParam) {
@@ -35,17 +56,31 @@ public class DocMethod {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("### ** %s ** %s ###\n\n",
+        sb.append(String.format("### %s %s ###\n\n",
                 Arrays.stream(methods)
                         .map(s -> String.format("``%s``", s))
                         .reduce((a, b) -> String.format("%s,%s", a, b)).orElse("ALL"),
                 name));
-        sb.append(String.format("%s\n\n", description));
+        ///uris
+        sb.append(String.format("#### uris: ####\n```\n%s```\n\n", 
+        		Arrays.stream(uris)
+        			.map(s -> String.format("%s\n", s))
+        			.reduce((a, b) -> a + b).orElse("NONE")
+        		));
+        ///usage
+        sb.append(String.format("** usage: **%s\n\n", usage.isEmpty() ? "{method usage}" : usage));
         sb.append("|name|type|optional|description|\n");
         sb.append("|---|---|:---:|---|\n");
         getParams().stream().forEach(p -> {
             sb.append(String.format("| ** %s ** |%s|%s|%s|\n", p.name, p.type, p.optional, p.description));
         });
+        
+        ///response example:
+        sb.append(String.format("#### response: ####\n```\n%s```\n\n",
+        		StringUtils.isBlank(response) ? "{response example}" : response
+        		));
+        
+        sb.append("\n- - - -\n\n");
 
         return sb.toString();
     }
