@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.method.annotation.ExpressionValueMethodArgumentResolver;
 
 /**
  * Created by Gang on 2017/08/04.
@@ -16,7 +15,7 @@ public class DocMethod {
     String[] uris = new String[] {};
     String[] scopes = new String[] {};
     String usage;
-    String response;
+    String request, response;
     
     Collection<DocParam<?>> params;
 	
@@ -47,6 +46,10 @@ public class DocMethod {
     public void setResponse(String response) {
     	this.response = response;
     }
+    
+    public void setRequest(String request) {
+		this.request = request;
+	}
 
     public void addParam(DocParam<?> newParam) {
         if(newParam == null) return;
@@ -61,26 +64,35 @@ public class DocMethod {
                         .map(s -> String.format("``%s``", s))
                         .reduce((a, b) -> String.format("%s,%s", a, b)).orElse("ALL"),
                 name));
+        
+        ///usage
+        sb.append(String.format("**usage:** %s\n\n", usage.isEmpty() ? "{method usage}" : usage));
+        
         ///uris
         sb.append(String.format("#### uris: ####\n```\n%s```\n\n", 
         		Arrays.stream(uris)
         			.map(s -> String.format("%s\n", s))
         			.reduce((a, b) -> a + b).orElse("NONE")
         		));
-        ///usage
-        sb.append(String.format("** usage: **%s\n\n", usage.isEmpty() ? "{method usage}" : usage));
-        sb.append("|name|type|optional|description|\n");
+        
+        ///parameters
+        sb.append("#### parameters: ####\n|name|type|optional|description|\n");
         sb.append("|---|---|:---:|---|\n");
         getParams().stream().forEach(p -> {
-            sb.append(String.format("| ** %s ** |%s|%s|%s|\n", p.name, p.type, p.optional, p.description));
+            sb.append(String.format("| **%s** |%s|%s|%s|\n", p.name, p.type, p.optional, p.description));
         });
         
+        ///request example
+        if(request != null && !request.isEmpty()) {
+        	sb.append(String.format("#### request: ####\n```\n%s\n```\n\n", request));
+        }
+        
         ///response example:
-        sb.append(String.format("#### response: ####\n```\n%s```\n\n",
+        sb.append(String.format("#### response: ####\n```\n%s\n```\n\n",
         		StringUtils.isBlank(response) ? "{response example}" : response
         		));
         
-        sb.append("\n- - - -\n\n");
+        sb.append("\n------\n\n");
 
         return sb.toString();
     }

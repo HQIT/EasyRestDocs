@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.cloume.spring.restdocs.processor.RestControllerProcessor;
+import com.cloume.spring.restdocs.processor.RestDocumentProcessor;
 
 /**
  * Created by Gang on 2017/08/03.
@@ -17,8 +17,8 @@ import com.cloume.spring.restdocs.processor.RestControllerProcessor;
 @Configuration
 public class RestDocsConfiguration {
     @Bean
-    public RestControllerProcessor restControllerProcessor() {
-        return new RestControllerProcessor();
+    public RestDocumentProcessor restControllerProcessor() {
+        return new RestDocumentProcessor();
     }
 
     @Bean

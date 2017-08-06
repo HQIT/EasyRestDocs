@@ -10,11 +10,10 @@ import java.lang.annotation.Target;
 /**
  * Created by Gang on 2017/08/04.
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface RestDoc {
     String usage() default "";
-    String[] scopes() default {};
 }

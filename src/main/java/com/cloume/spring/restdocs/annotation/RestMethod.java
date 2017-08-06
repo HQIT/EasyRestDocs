@@ -20,8 +20,12 @@ public @interface RestMethod {
     String requestExampleText() default "";
 
 	String name() default "";
+	
+	String usage() default "";
 
 	Class<?> responseExampleClass() default Void.class;
 
 	Class<?> requestExampleClass() default Void.class;
+
+	String[] scopes() default {};
 }

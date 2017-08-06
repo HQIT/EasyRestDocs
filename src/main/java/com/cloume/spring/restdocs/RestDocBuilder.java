@@ -1,6 +1,5 @@
 package com.cloume.spring.restdocs;
 
-import com.cloume.spring.restdocs.RestDocBuilder.RestDocMethodBuilder;
 import com.cloume.spring.restdocs.data.DocMethod;
 import com.cloume.spring.restdocs.data.DocParam;
 import com.cloume.spring.restdocs.data.DocRoot;
@@ -12,6 +11,33 @@ public class RestDocBuilder {
 
     static DocRoot root;
     DocRoot doc() { return root == null ? root = new DocRoot() : root; }
+    
+    public class DocRootBuilder {
+    	public DocRootBuilder version(String version) {
+    		doc().setVersion(version);
+    		return this;
+    	}
+    	
+    	public DocRootBuilder usage(String usage) {
+    		doc().setUsage(usage);
+			return this;
+    	}
+    	
+    	public DocRootBuilder name(String name) {
+    		doc().setName(name);
+    		return this;
+    	}
+    }
+    
+    DocRootBuilder docRootBuilder;
+    
+    {
+    	docRootBuilder = new DocRootBuilder();
+    }
+    
+    public DocRootBuilder root() {
+		return docRootBuilder;
+	}
 
     public void reset() {
         doc().clear();
@@ -43,6 +69,11 @@ public class RestDocBuilder {
         
         public RestDocMethodBuilder response(String response) {
         	creating().setResponse(response);
+			return this;
+		}
+        
+        public RestDocMethodBuilder request(String request) {
+        	creating().setRequest(request);
 			return this;
 		}
 

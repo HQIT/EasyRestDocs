@@ -38,4 +38,16 @@ public class DocRoot {
     public void clear() {
         getMethods().clear();
     }
+
+	public void setName(String name) {
+		this.title = name;
+	}
+	
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	
+	public void setUsage(String description) {
+		this.description = description;
+	}
 }
