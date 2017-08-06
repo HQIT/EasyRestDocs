@@ -26,6 +26,40 @@ easy rest doc for Spring boot. 依赖spring *AOP* 发现 ``RestController`` 注�
 ### @RestParam
 TBD
 
+## 例子
+
+1. 只扫描@RestController注解的类, 如果存在@RequestMapping并设置path, 会叠加到内部methods的uris
+
+``` java
+@RestController
+@RequestMapping(value = { "/1", "/2" })
+public class DemoRestApi {}
+```
+
+2. 生成response样例, 定义样例类, 通过``@RestMethod``注解指定
+
+``` java
+static public class ResponseExample {
+    	int code;
+    	String message;
+    	
+    	public String getMessage() {
+			return message;
+		}
+}
+
+@RestMethod(responseExampleClass = ResponseExample.class)
+@RestDoc(usage = "api used to say hello to someone")
+@RequestMapping(value = "/hello", method = {RequestMethod.GET})
+public Object get(
+        @RestParam @RequestParam(name = "who", defaultValue = "") String who
+) {
+    return "hello," + who;
+}
+```
+
+3. 生成response样例, 需要``@RequestBody``和``@RestMethod.requestExampleClass``同时具备
+
 ## 输出文件
 可通过 **${restdocs.base}** 配置, 默认为 **"/docs.md"**
 
