@@ -3,10 +3,12 @@ package com.cloume.spring.restdocs.processor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -99,14 +101,17 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     }
     
     void onRestControllerFound(Object controller) {
-    	String[] baseUris = new String[] { "" };
+    	String[] baseUris = null;
     	RequestMapping prm = controller.getClass().getAnnotation(RequestMapping.class);
     	if(prm != null) baseUris = (prm.value() == null ? prm.path() : prm.value());
+    	if(baseUris == null || baseUris.length == 0) baseUris = new String[] { "" };
     	
-    	List<Method> methods = MethodUtils.getMethodsListWithAnnotation(
-    			controller.getClass(), RequestMapping.class);
-    	for (Method m : methods) {
-    		OnMethodFound(controller, baseUris, m);
+    	List<Method> methods = Collections.emptyList();
+    	Method[] all = controller.getClass().getDeclaredMethods();
+    	for(Method m: all) {
+    		if(m.isAnnotationPresent(RequestMapping.class)) {
+    			OnMethodFound(controller, baseUris, m);
+    		}
     	}
     }
     
