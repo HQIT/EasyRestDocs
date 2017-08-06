@@ -62,25 +62,34 @@ public class DocMethod {
         sb.append(String.format("### %s %s ###\n\n",
                 Arrays.stream(methods)
                         .map(s -> String.format("``%s``", s))
-                        .reduce((a, b) -> String.format("%s,%s", a, b)).orElse("ALL"),
+                        .reduce((a, b) -> String.format("%s,%s", a, b)).orElse("``ALL``"),
                 name));
+        
+        ///scopes
+        sb.append(String.format("**scopes:** %s\n\n", 
+        		Arrays.stream(scopes)
+        			.map(s -> String.format("``%s``", s))
+        			.reduce((a, b) -> String.format("%s, %s", a, b)).orElse("``NONE``")
+        		));
         
         ///usage
         sb.append(String.format("**usage:** %s\n\n", usage.isEmpty() ? "{method usage}" : usage));
         
         ///uris
-        sb.append(String.format("#### uris: ####\n```\n%s```\n\n", 
+        sb.append(String.format("**uris:** %s\n\n", 
         		Arrays.stream(uris)
-        			.map(s -> String.format("%s\n", s))
-        			.reduce((a, b) -> a + b).orElse("NONE")
+        			.map(s -> String.format("``%s``", s))
+        			.reduce((a, b) -> String.format("%s, %s", a, b)).orElse("``NONE``")
         		));
         
-        ///parameters
-        sb.append("#### parameters: ####\n|name|type|optional|description|\n");
-        sb.append("|---|---|:---:|---|\n");
-        getParams().stream().forEach(p -> {
-            sb.append(String.format("| **%s** |%s|%s|%s|\n", p.name, p.type, p.optional, p.description));
-        });
+        if(!getParams().isEmpty()) {
+	        ///parameters
+	        sb.append("#### parameters: ####\n|name|type|optional|description|\n");
+	        sb.append("|---|---|:---:|---|\n");
+	        getParams().stream().forEach(p -> {
+	            sb.append(String.format("| **%s** |%s|%s|%s|\n", p.name, p.type, p.optional, p.description));
+	        });
+        }
         
         ///request example
         if(request != null && !request.isEmpty()) {

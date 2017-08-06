@@ -1,14 +1,11 @@
 package com.cloume.spring.restdocs.processor;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -22,7 +19,7 @@ import com.cloume.spring.restdocs.RestDocBuilder.RestDocMethodBuilder;
 import com.cloume.spring.restdocs.annotation.EnableRestDocs;
 import com.cloume.spring.restdocs.annotation.RestDoc;
 import com.cloume.spring.restdocs.annotation.RestMethod;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.cloume.spring.restdocs.annotation.RestParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -32,17 +29,30 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     @Autowired RestDocBuilder builder;
     
     void onMethodParamFound(RestDocMethodBuilder mb, Method method, Parameter param) {
-    	String name = param.getName();
+    	String name = param.getName(), type = "", description = "";
         boolean optional = true;
         if(param.isAnnotationPresent(RequestParam.class)) {
             RequestParam rp = param.getAnnotation(RequestParam.class);
             if(!rp.name().isEmpty()) name = rp.name();
             if(!rp.value().isEmpty()) name = rp.value();
             optional = !rp.required();
+        
         } else if (param.isAnnotationPresent(RequestBody.class)) {
-        	
+        	type = "Object";
+        	return;
         }
-        mb.parameter(name).type(param.getType().getSimpleName()).optional(optional).end();
+        
+        if(param.isAnnotationPresent(RestParam.class)) {
+        	RestParam rp = param.getAnnotation(RestParam.class);
+        	description = rp.value().isEmpty() ? rp.description() : rp.value();
+        	if(name.startsWith("arg") || name.isEmpty()) name = rp.name();
+        }
+        
+        mb.parameter(name)
+        	.type(type.isEmpty() ? param.getType().getSimpleName() : type)
+        	.optional(optional)
+        	.description(description.isEmpty() ? "--" : description)
+        	.end();
     }
     
     void OnMethodFound(Object controller, String[] baseUris, Method method) {
@@ -61,28 +71,36 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	RestDoc rd = method.getAnnotation(RestDoc.class);
     	RestMethod mtd = method.getAnnotation(RestMethod.class);
     	
-    	String request = "", response = "";
+    	String name = "", request = "", response = "";
     	if(mtd != null) {
+    		name = mtd.name();
+    		
     		try {
     			if(!mtd.requestExampleClass().equals(Void.class)) {
     				request = new ObjectMapper().writerWithDefaultPrettyPrinter()
     						.writeValueAsString(mtd.requestExampleClass().newInstance());
     			} else {
-    				request = mtd.requestExampleText();
+    				request = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
+    						new ObjectMapper().readTree(mtd.requestExampleText()));
     			}
-    			
+    		} catch (InstantiationException | IllegalAccessException | IOException e) {
+				System.err.printf("exp: %s \n", e.getMessage());
+			}
+    		
+    		try {
     			if(!mtd.responseExampleClass().equals(Void.class)) {
     				response = new ObjectMapper().writerWithDefaultPrettyPrinter()
     						.writeValueAsString(mtd.responseExampleClass().newInstance());
     			} else {
-    				response = mtd.responseExampleText();
+    				response = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
+    						new ObjectMapper().readTree(mtd.responseExampleText()));
     			}
-			} catch (JsonProcessingException | InstantiationException | IllegalAccessException e) {
+			} catch (InstantiationException | IllegalAccessException | IOException e) {
 				System.err.printf("exp: %s \n", e.getMessage());
 			}
     	}
     	
-        RestDocBuilder.RestDocMethodBuilder mb = builder.method(method.getName())
+        RestDocBuilder.RestDocMethodBuilder mb = builder.method(name.isEmpty() ? method.getName() : name)
         		.usage(rd != null ? rd.usage() : "{method usage}")
         		.request(request)
         		.response(response.isEmpty() ? "{response example}" : response)
@@ -106,7 +124,6 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	if(prm != null) baseUris = (prm.value() == null ? prm.path() : prm.value());
     	if(baseUris == null || baseUris.length == 0) baseUris = new String[] { "" };
     	
-    	List<Method> methods = Collections.emptyList();
     	Method[] all = controller.getClass().getDeclaredMethods();
     	for(Method m: all) {
     		if(m.isAnnotationPresent(RequestMapping.class)) {
