@@ -1,5 +1,6 @@
 package com.cloume.spring.restdocs;
 
+import com.cloume.spring.restdocs.RestDocBuilder.RestDocMethodBuilder;
 import com.cloume.spring.restdocs.data.DocMethod;
 import com.cloume.spring.restdocs.data.DocParam;
 import com.cloume.spring.restdocs.data.DocRoot;
@@ -57,7 +58,12 @@ public class RestDocBuilder {
             return this;
         }
         
-        public RestDocMethodBuilder uris(String[] uris) {
+        public RestDocMethodBuilder scopes(String[] scopes) {
+        	creating().setScopes(scopes);
+        	return this;
+		}
+
+		public RestDocMethodBuilder uris(String[] uris) {
         	creating().setUris(uris);
         	return this;
         }

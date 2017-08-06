@@ -71,9 +71,12 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	RestDoc rd = method.getAnnotation(RestDoc.class);
     	RestMethod mtd = method.getAnnotation(RestMethod.class);
     	
+    	String[] scopes = new String[] {};
+    	
     	String name = "", request = "", response = "";
     	if(mtd != null) {
     		name = mtd.name();
+    		scopes = mtd.scopes();
     		
     		try {
     			if(!mtd.requestExampleClass().equals(Void.class)) {
@@ -102,6 +105,7 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	
         RestDocBuilder.RestDocMethodBuilder mb = builder.method(name.isEmpty() ? method.getName() : name)
         		.usage(rd != null ? rd.usage() : "{method usage}")
+        		.scopes(scopes)
         		.request(request)
         		.response(response.isEmpty() ? "{response example}" : response)
         		.uris(uris)
