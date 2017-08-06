@@ -158,4 +158,19 @@ public class RestDocBuilder {
     public String generate() {
         return doc().toString();
     }
+    
+    /**
+     * http://strapdownjs.com/
+     * @return
+     */
+    public String strapdown() {
+    	String template = "<!DOCTYPE html>"
+    			+ "<html>"
+    			+ "<title>%s</title>"
+    			+ "<xmp theme=\"united\" style=\"display:none;\">%s</xmp>"
+    			+ "<script src=\"http://strapdownjs.com/v/0.2/strapdown.js\"></script>"
+    			+ "</html>";
+    	
+    	return String.format(template, doc().getName(), generate());
+    }
 }

@@ -42,6 +42,9 @@ public class DocRoot {
 	public void setName(String name) {
 		this.title = name;
 	}
+	public String getName() {
+		return this.title;
+	}
 	
 	public void setVersion(String version) {
 		this.version = version;
