@@ -72,11 +72,13 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	RestMethod mtd = method.getAnnotation(RestMethod.class);
     	
     	String[] scopes = new String[] {};
+    	String name = "", request = "", response = "", usage = "";
+    	if(rd != null) usage = rd.usage();
     	
-    	String name = "", request = "", response = "";
     	if(mtd != null) {
     		name = mtd.name();
     		scopes = mtd.scopes();
+    		usage += mtd.usage();
     		
     		try {
     			if(!mtd.requestExampleClass().equals(Void.class)) {
@@ -104,16 +106,24 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	}
     	
         RestDocBuilder.RestDocMethodBuilder mb = builder.method(name.isEmpty() ? method.getName() : name)
-        		.usage(rd != null ? rd.usage() : "{method usage}")
+        		.usage(usage.isEmpty() ? "{method usage}" : usage)
         		.scopes(scopes)
         		.request(request)
         		.response(response.isEmpty() ? "{response example}" : response)
         		.uris(uris)
                 .methods(Arrays.stream(rm.method()).map(i -> i.name()).toArray(String[]::new));
+        
+        /// errors
+        if(mtd != null) {
+        	Arrays.stream(mtd.errors()).forEach(e -> mb.error(e.code(), e.message()));
+        }
+        
+        /// parameters
         for (Parameter param : method.getParameters()) {
         	if(Arrays.asList(
         			"HttpServletRequest", 
-        			"HttpServletResponse").contains(
+        			"HttpServletResponse",
+        			"Principal").contains(
         					param.getType().getSimpleName())) {
         		continue;
         	}

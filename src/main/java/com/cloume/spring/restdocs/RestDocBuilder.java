@@ -1,6 +1,5 @@
 package com.cloume.spring.restdocs;
 
-import com.cloume.spring.restdocs.RestDocBuilder.RestDocMethodBuilder;
 import com.cloume.spring.restdocs.data.DocMethod;
 import com.cloume.spring.restdocs.data.DocParam;
 import com.cloume.spring.restdocs.data.DocRoot;
@@ -83,7 +82,12 @@ public class RestDocBuilder {
 			return this;
 		}
 
-        RestDocBuilder and() {
+        public RestDocMethodBuilder error(int code, String message) {
+        	creating().addError(code, message);
+        	return this;
+		}
+
+		RestDocBuilder and() {
             end();
             return RestDocBuilder.this;
         }
@@ -112,8 +116,8 @@ public class RestDocBuilder {
         }
 
         public class RestDocMethodParameterBuilder {
-            DocParam<?> newParam = null;
-            DocParam<?> creating() { return newParam == null ? newParam = new DocParam<>() : newParam; }
+            DocParam newParam = null;
+            DocParam creating() { return newParam == null ? newParam = new DocParam() : newParam; }
 
             public RestDocMethodParameterBuilder name(String paramName) {
                 creating().setName(paramName);

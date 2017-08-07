@@ -7,6 +7,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.cloume.spring.restdocs.annotation.inner.RestError;
+
 /**
  * Created by Gang on 2017/08/04.
  */
@@ -28,4 +30,6 @@ public @interface RestMethod {
 	Class<?> requestExampleClass() default Void.class;
 
 	String[] scopes() default {};
+	
+	RestError[] errors() default { };
 }

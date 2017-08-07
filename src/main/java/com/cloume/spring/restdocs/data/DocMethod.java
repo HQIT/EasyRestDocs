@@ -3,6 +3,8 @@ package com.cloume.spring.restdocs.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,13 +16,18 @@ public class DocMethod {
     String[] methods = new String[] {};
     String[] uris = new String[] {};
     String[] scopes = new String[] {};
+    Map<Integer, String> errors = new HashMap<>();
     String usage;
     String request, response;
     
-    Collection<DocParam<?>> params;
+    Collection<DocParam> params;
 	
-    Collection<DocParam<?>> getParams() {
+    Collection<DocParam> getParams() {
         return params == null ? params = new ArrayList<>() : params;
+    }
+    
+    Map<Integer, String> getErrors() {
+    	return errors;
     }
 
     public void setName(String name) {
@@ -51,9 +58,13 @@ public class DocMethod {
 		this.request = request;
 	}
 
-    public void addParam(DocParam<?> newParam) {
+    public void addParam(DocParam newParam) {
         if(newParam == null) return;
         getParams().add(newParam);
+    }
+    
+    public void addError(int code, String message) {
+    	getErrors().put(code, message);
     }
 
     @Override
@@ -101,7 +112,15 @@ public class DocMethod {
         		StringUtils.isBlank(response) ? "{response example}" : response
         		));
         
-        sb.append("\n------\n\n");
+        /// error codes
+        sb.append(String.format("#### errors: ####\n%s\n\n",
+        		getErrors().entrySet().stream()
+        			.map(e -> String.format("* ``%d`` : %s\n", e.getKey(), e.getValue()))
+        			.reduce((a, b) -> a + b)
+        			.orElse("*NOT SET*")
+        		));
+        
+        sb.append("\n\n------\n\n\n");
 
         return sb.toString();
     }

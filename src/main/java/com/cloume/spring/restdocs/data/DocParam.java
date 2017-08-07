@@ -3,9 +3,7 @@ package com.cloume.spring.restdocs.data;
 /**
  * Created by Gang on 2017/08/04.
  */
-public class DocParam<T> {
-    T payload;
-
+public class DocParam {
     String name;
     boolean optional;
     String type;
