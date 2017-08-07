@@ -1,6 +1,6 @@
 # EasyRestDocs (Rest Docs Plus)
 
-easy rest doc for Spring boot. 依赖spring *AOP* 发现 ``RestController`` 注解的 beans, 对其 ``RequestMapping`` 注解的 methods 进行解析, 生成 **markdown** 格式的文档.
+easy rest doc for Spring boot. 依赖spring *AOP* 发现 ``RestController`` 注解的 beans, 对其 ``RequestMapping`` 注解的 methods 进行解析, 生成 **markdown** 和 **html** 格式的文档.
 
 ## 用法
 使用``@EnableRestDocs``注解启用自动生成, 包含``name``/``version``/``usage``三个属性, 生成在文档最前部分总体说明
@@ -70,7 +70,8 @@ public Object get(
 3. 生成response样例, 需要``@RequestBody``和``@RestMethod.requestExampleClass``同时具备
 
 ## 输出文件
-可通过 **${restdocs.base}** 配置, 默认为 **"/docs.md"**
+* 可通过 **${restdocs.base}** 配置, 默认为 **"/docs.md"**
+* 在访问路径后加 **/html** 能够看到 http://strapdownjs.com/ 渲染之后的html
 
 ## TODOs:
 1. 支持 ``@PathVariable``
