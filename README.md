@@ -18,13 +18,19 @@ easy rest doc for Spring boot. 依赖spring *AOP* 发现 ``RestController`` 注�
 1. **responseExampleText** 如果``responseExampleClass``不存在,使用该属性作为接口输出样例
 1. **scopes**
 1. **usage** 用途说明
+1. **errors** (``@RestError``) 错误描述数组
+
+#### @RestError 
+1. **code** 错误码
+1. **message** 错误说明
 
 #### 参数
 1. 跳过 ``HttpServletRequest``/``HttpServletRequest`` 等
 1. 识别``RequestParam``注解的``name``/``required``等属性
 
 ### @RestParam
-TBD
+1. **name** 参数名, 作为``@RequestParam.name``的fallback
+1. **description** 参数作用描述
 
 ## 例子
 
@@ -48,7 +54,10 @@ static public class ResponseExample {
 		}
 }
 
-@RestMethod(responseExampleClass = ResponseExample.class)
+@RestMethod(responseExampleClass = ResponseExample.class
+    errors = {
+        @RestError(code = -1, message = "bad")
+    })
 @RestDoc(usage = "api used to say hello to someone")
 @RequestMapping(value = "/hello", method = {RequestMethod.GET})
 public Object get(
