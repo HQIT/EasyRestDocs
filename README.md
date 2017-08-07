@@ -16,7 +16,7 @@ easy rest doc for Spring boot. 依赖spring *AOP* 发现 ``RestController`` 注�
 1. **requestExampleText** 如果``requestExampleClass``不存在,使用该属性作为接口请求body的样例
 1. **responseExampleClass** 如果不为``Void.class``(默认值)则实例化并生成pretty json string作为接口输出样例
 1. **responseExampleText** 如果``responseExampleClass``不存在,使用该属性作为接口输出样例
-1. **scopes**
+1. **scopes** 接口所属scope
 1. **usage** 用途说明
 1. **errors** (``@RestError``) 错误描述数组
 
@@ -74,5 +74,5 @@ public Object get(
 
 ## TODOs:
 1. 支持 ``@PathVariable``
-1. 支持 *scopes*
+1. ~~支持 *scopes*~~
 1. 更多完善
