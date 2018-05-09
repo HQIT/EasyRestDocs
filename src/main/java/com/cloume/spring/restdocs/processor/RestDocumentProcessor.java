@@ -4,15 +4,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.cloume.spring.restdocs.RestDocBuilder;
 import com.cloume.spring.restdocs.RestDocBuilder.RestDocMethodBuilder;
@@ -55,7 +53,7 @@ public class RestDocumentProcessor implements BeanPostProcessor {
         	.end();
     }
     
-    void OnMethodFound(Object controller, String[] baseUris, Method method) {
+    private void OnMethodFound(Object controller, String[] baseUris, Method method) {
     	RequestMapping rm = method.getAnnotation(RequestMapping.class);
     	String[] uris = (rm.value() == null ? rm.path() : rm.value());
     	if(uris == null || uris.length == 0) uris = new String[] { "" };
@@ -140,7 +138,8 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     	
     	Method[] all = controller.getClass().getDeclaredMethods();
     	for(Method m: all) {
-    		if(m.isAnnotationPresent(RequestMapping.class)) {
+			if(Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, DeleteMapping.class)
+					.stream().anyMatch(e -> m.isAnnotationPresent(e))) {
     			OnMethodFound(controller, baseUris, m);
     		}
     	}
