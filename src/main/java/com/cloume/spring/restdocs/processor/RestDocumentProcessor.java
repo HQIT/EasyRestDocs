@@ -1,6 +1,7 @@
 package com.cloume.spring.restdocs.processor;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -52,10 +53,51 @@ public class RestDocumentProcessor implements BeanPostProcessor {
         	.description(description.isEmpty() ? "--" : description)
         	.end();
     }
-    
+
     private void OnMethodFound(Object controller, String[] baseUris, Method method) {
-    	RequestMapping rm = method.getAnnotation(RequestMapping.class);
-    	String[] uris = (rm.value() == null ? rm.path() : rm.value());
+		OnMethodFound(controller, baseUris, method, RequestMapping.class);
+	}
+
+	static class RequestMappingWrapper<T> {
+    	T t;
+    	private RequestMappingWrapper(T t) {
+    		this.t = t;
+		}
+
+    	static <T1 extends Annotation> RequestMappingWrapper<T1> wrap(T1 t) {
+    		return new RequestMappingWrapper(t);
+		}
+
+		String[] value() {
+    		if(t.getClass() == RequestMapping.class) return ((RequestMapping) t).value();
+			if(t.getClass() == GetMapping.class) return ((GetMapping) t).value();
+			if(t.getClass() == PostMapping.class) return ((PostMapping) t).value();
+			if(t.getClass() == PutMapping.class) return ((PutMapping) t).value();
+			if(t.getClass() == DeleteMapping.class) return ((DeleteMapping) t).value();
+    		return new String[]{};
+		}
+
+		String[] path() {
+    		return value();
+		}
+
+		RequestMethod[] method() {
+			if(t.getClass() == RequestMapping.class) return ((RequestMapping) t).method();
+			if(t.getClass() == GetMapping.class) return new RequestMethod[]{ RequestMethod.GET };
+			if(t.getClass() == PostMapping.class) return new RequestMethod[]{ RequestMethod.POST };
+			if(t.getClass() == PutMapping.class) return new RequestMethod[]{ RequestMethod.PUT };
+			if(t.getClass() == DeleteMapping.class) return new RequestMethod[]{ RequestMethod.DELETE };
+			return new RequestMethod[]{};
+		}
+	}
+    
+    private <T extends Annotation> void OnMethodFound(Object controller, String[] baseUris, Method method, Class<T> annotation) {
+    	T t = method.getAnnotation(annotation);
+		if(t == null) return;
+
+		RequestMappingWrapper rm = RequestMappingWrapper.wrap(t);
+
+    	String[] uris = (rm.value().length == 0 ? rm.path() : rm.value());
     	if(uris == null || uris.length == 0) uris = new String[] { "" };
     	uris = Arrays.stream(uris)
     		.map(p -> Arrays.stream(baseUris)
@@ -133,14 +175,18 @@ public class RestDocumentProcessor implements BeanPostProcessor {
     void onRestControllerFound(Object controller) {
     	String[] baseUris = null;
     	RequestMapping prm = controller.getClass().getAnnotation(RequestMapping.class);
-    	if(prm != null) baseUris = (prm.value() == null ? prm.path() : prm.value());
+    	if(prm != null) baseUris = (prm.value().length == 0 ? prm.path() : prm.value());
     	if(baseUris == null || baseUris.length == 0) baseUris = new String[] { "" };
     	
     	Method[] all = controller.getClass().getDeclaredMethods();
     	for(Method m: all) {
-			if(Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, DeleteMapping.class)
-					.stream().anyMatch(e -> m.isAnnotationPresent(e))) {
-    			OnMethodFound(controller, baseUris, m);
+    		if(m.isAnnotationPresent(RequestMapping.class)) OnMethodFound(controller, baseUris, m, RequestMapping.class);
+    		else if(m.isAnnotationPresent(GetMapping.class)) OnMethodFound(controller, baseUris, m, GetMapping.class);
+    		else if(m.isAnnotationPresent(PostMapping.class)) OnMethodFound(controller, baseUris, m, PostMapping.class);
+    		else if(m.isAnnotationPresent(PutMapping.class)) OnMethodFound(controller, baseUris, m, PutMapping.class);
+    		else if(m.isAnnotationPresent(DeleteMapping.class)) OnMethodFound(controller, baseUris, m, DeleteMapping.class);
+    		else{
+    			//
     		}
     	}
     }
