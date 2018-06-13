@@ -1,18 +1,5 @@
 package com.cloume.spring.restdocs.processor;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.web.bind.annotation.*;
-
 import com.cloume.spring.restdocs.RestDocBuilder;
 import com.cloume.spring.restdocs.RestDocBuilder.RestDocMethodBuilder;
 import com.cloume.spring.restdocs.annotation.EnableRestDocs;
@@ -20,11 +7,23 @@ import com.cloume.spring.restdocs.annotation.RestDoc;
 import com.cloume.spring.restdocs.annotation.RestMethod;
 import com.cloume.spring.restdocs.annotation.RestParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 
 /**
  * Created by Gang on 2017/08/03.
  */
 public class RestDocumentProcessor implements BeanPostProcessor {
+
     @Autowired RestDocBuilder builder;
     
     void onMethodParamFound(RestDocMethodBuilder mb, Method method, Parameter param) {
@@ -58,7 +57,7 @@ public class RestDocumentProcessor implements BeanPostProcessor {
 		OnMethodFound(controller, baseUris, method, RequestMapping.class);
 	}
 
-	static class RequestMappingWrapper<T> {
+	static class RequestMappingWrapper<T extends Annotation> {
     	T t;
     	private RequestMappingWrapper(T t) {
     		this.t = t;
@@ -69,11 +68,11 @@ public class RestDocumentProcessor implements BeanPostProcessor {
 		}
 
 		String[] value() {
-    		if(t.getClass() == RequestMapping.class) return ((RequestMapping) t).value();
-			if(t.getClass() == GetMapping.class) return ((GetMapping) t).value();
-			if(t.getClass() == PostMapping.class) return ((PostMapping) t).value();
-			if(t.getClass() == PutMapping.class) return ((PutMapping) t).value();
-			if(t.getClass() == DeleteMapping.class) return ((DeleteMapping) t).value();
+    		if(t.annotationType() == RequestMapping.class) return ((RequestMapping) t).value();
+			if(t.annotationType() == GetMapping.class) return ((GetMapping) t).value();
+			if(t.annotationType() == PostMapping.class) return ((PostMapping) t).value();
+			if(t.annotationType() == PutMapping.class) return ((PutMapping) t).value();
+			if(t.annotationType() == DeleteMapping.class) return ((DeleteMapping) t).value();
     		return new String[]{};
 		}
 
@@ -82,11 +81,11 @@ public class RestDocumentProcessor implements BeanPostProcessor {
 		}
 
 		RequestMethod[] method() {
-			if(t.getClass() == RequestMapping.class) return ((RequestMapping) t).method();
-			if(t.getClass() == GetMapping.class) return new RequestMethod[]{ RequestMethod.GET };
-			if(t.getClass() == PostMapping.class) return new RequestMethod[]{ RequestMethod.POST };
-			if(t.getClass() == PutMapping.class) return new RequestMethod[]{ RequestMethod.PUT };
-			if(t.getClass() == DeleteMapping.class) return new RequestMethod[]{ RequestMethod.DELETE };
+			if(t.annotationType() == RequestMapping.class) return ((RequestMapping) t).method();
+			if(t.annotationType() == GetMapping.class) return new RequestMethod[]{ RequestMethod.GET };
+			if(t.annotationType() == PostMapping.class) return new RequestMethod[]{ RequestMethod.POST };
+			if(t.annotationType() == PutMapping.class) return new RequestMethod[]{ RequestMethod.PUT };
+			if(t.annotationType() == DeleteMapping.class) return new RequestMethod[]{ RequestMethod.DELETE };
 			return new RequestMethod[]{};
 		}
 	}
